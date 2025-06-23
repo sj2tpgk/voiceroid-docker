@@ -1,0 +1,15 @@
+FROM i386/debian:12-slim
+
+RUN apt-get update \
+        && apt-get install -y --no-install-recommends --no-install-suggests wine wine32 \
+        && apt-get install -y --no-install-recommends --no-install-suggests tightvncserver xautomation xsel xfonts-base procps python3 sox libsox-fmt-mp3
+
+ENV USER=root
+ADD assets/root1/ /root/
+# chown/chmod is needed for programs to create config dir etc
+RUN chown -R root /root/.vnc/ && chmod 0755 /root/.vnc/xstartup && chmod 0600 /root/.vnc/passwd
+ADD assets/root2/ /root/
+WORKDIR /root/
+ENTRYPOINT ["/root/entrypoint.sh"]
+
+# vim: ft=dockerfile

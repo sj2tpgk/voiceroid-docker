@@ -1,0 +1,78 @@
+#!/bin/sh
+
+if [ $# -ne 2 ]; then
+    echo "Usage: V_NAME=yukari V_EXE=Voiceroid.exe V_DISPLAY=:1 ./save INPUT OUTPUT" >&2
+    echo "INPUT: text file" >&2
+    echo "OUTPUT: wav file" >&2
+    echo "INPUT and OUTPUT are interpreted as paths in the docker container" >&2
+    exit 1
+fi
+
+[ "$V_NAME" ] || { echo "\$V_NAME not set"; exit 1; }
+[ "$V_EXE" ] || { echo "\$V_EXE not set"; exit 1; }
+[ "$V_DISPLAY" ] || { echo "\$V_DISPLAY not set"; exit 1; }
+
+export DISPLAY="$V_DISPLAY"
+
+input=$1
+output=$2
+
+[ -e "$input" ] || { echo "Input file $input does not exist" >&2; exit 1; }
+
+wait_file_write_finish_oneof() {
+    # echo > savedebug.txt
+    waitfile=
+    while [ -z "$waitfile" ]; do
+        sleep .2
+        for i in "$@"; do
+            [ -e "$i" ] && waitfile="$i"
+        done
+        #echo "=== 1 ===" >> savedebug.txt
+        #xwininfo -tree -root 2>&1 | tee -a savedebug.txt
+    done
+    stat1=$(stat -c %Y.%s "$waitfile")
+    while sleep .2; do
+        stat2=$(stat -c %Y.%s "$waitfile")
+        #echo "=== 2 $stat1 $stat2 ===" >> savedebug.txt
+        #xwininfo -tree -root 2>&1 | tee -a savedebug.txt | grep '音声の保存中' || break
+        if xwininfo -tree -root 2>&1 | grep '音声の保存中' >/dev/null 2>&1; then
+            break
+        fi
+        [ "$stat1" = "$stat2" ] && break
+        stat1="$stat2"
+    done
+    sleep .2
+    echo "$waitfile"
+    #for i in 1 2 3 4; do
+    #    echo "=== 3 $i ===" >> savedebug.txt
+    #    xwininfo -tree -root 2>&1 | tee -a savedebug.txt
+    #    sleep .5
+    #done
+}
+
+# We don't know in which directory the file is created
+workdir1=/root/Voiceroid/AHS/VOICEROID+/yukari/dbs/yukari/
+workdir2=/root/Voiceroid/AHS/VOICEROID+/tamiyasu/dbs/tamiyasu/
+
+s="usleep 200000"
+# s="usleep 1000000"
+
+(cd "$(dirname "$0")" && ./unpause)
+
+xsel --display :1 -b -i < "$input" # For some reason we need --display :1, even for windows in :2
+xsel --display :2 -b -i < "$input"
+
+rm -f "$workdir1"/a.txt "$workdir1"/a.wav "$workdir2"/a.txt "$workdir2"/a.wav
+echo 1
+xte \
+    "mousemove 360 160" "$s" "mouseclick 1" "$s" \
+    "keydown Control_L" "$s" "key End" "$s" "keydown Shift_L" "$s" "key Home" "$s" \
+    "keyup Shift_L" "$s" "key BackSpace" "$s" "key v" "$s" "keyup Control_L" "$s" \
+    "mousemove 360 310" "$s" "mouseclick 1" "$s" \
+    "str a" "$s" "key Return"
+echo 2
+awav=$(wait_file_write_finish_oneof "$workdir1"/a.wav "$workdir2"/a.wav)
+echo 3
+mv -f "$awav" "$output"
+
+(cd "$(dirname "$0")" && ./pause)

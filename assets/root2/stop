@@ -1,0 +1,6 @@
+#!/bin/sh
+[ "$V_NAME" ] || { echo "\$V_NAME not set"; exit 1; }
+[ "$V_EXE" ] || { echo "\$V_EXE not set"; exit 1; }
+[ "$V_DISPLAY" ] || { echo "\$V_DISPLAY not set"; exit 1; }
+pkill -kill "$V_EXE"
+vncserver -kill "$V_DISPLAY"

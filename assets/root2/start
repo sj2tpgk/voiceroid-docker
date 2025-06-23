@@ -1,0 +1,31 @@
+#!/bin/sh
+
+[ "$V_NAME" ] || { echo "\$V_NAME not set"; exit 1; }
+[ "$V_EXE" ] || { echo "\$V_EXE not set"; exit 1; }
+[ "$V_DISPLAY" ] || { echo "\$V_DISPLAY not set"; exit 1; }
+
+cd "$(dirname "$0")" || exit
+
+export DISPLAY="$V_DISPLAY"
+
+rm -f /root/"ready_$V_NAME"
+
+echo "[$V_NAME] Starting VNC $V_DISPLAY"
+vncserver "$V_DISPLAY" -geometry 1000x700 -depth 24
+
+echo "[$V_NAME] Starting Voiceroid"
+(cd /root/Voiceroid/AHS/VOICEROID+/"$V_NAME"/ && wine "$V_EXE") &
+
+echo "[$V_NAME] Waiting for voiceroid startup"
+while sleep 1; do
+    printf .
+    xwininfo -tree -root 2>&1 | grep plinfo_window >/dev/null && break
+done
+echo
+sleep 1
+
+echo "[$V_NAME] Pausing voiceroid"
+./pause
+
+echo "[$V_NAME] Ready ok"
+touch /root/"ready_$V_NAME"

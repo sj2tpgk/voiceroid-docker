@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Voiceroid</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<style>
+* { box-sizing: border-box }
+body { margin: 0 auto; padding: 10px; display: flex; align-items: center; flex-direction: column; line-height: 1.5; }
+h2 { margin: 0; text-align: center; border-width: 0 }
+h3 { margin: 0 }
+form { width: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; }
+form > * { width: 100% }
+form > *, form .button { padding: 7px 12px }
+form .button { text-align: center; text-decoration: none; font: bold large sans-serif; color: white }
+form .button:hover { filter: brightness(.8) contrast(1.8) }
+form textarea, form .button, form .b { border: solid #8888 1px; border-radius: 5px }
+
+button .progress { display: none }
+button:focus .progress { display: inline }
+
+.label-yukari, .label-maki { font-weight:bold }
+.label-yukari { color: purple }
+.label-maki { color: orange }
+
+@media (prefers-color-scheme: dark) {
+    .b { background: #333 }
+    .label-yukari { color: magenta }
+}
+</style>
+</head>
+<body style="width:min(600px,90vw)">
+<form method=POST>
+    <h2>Voiceroid</h2>
+    <textarea name=q rows=10 placeholder="Text here ..."></textarea>
+    <div class=b>
+        <h3>Config:</h3>
+        <div style="padding:5px 10px 0px;line-height:1.7">
+            Voice:
+            <label class=label-yukari><input type=radio name=voice value=yukari checked>Yukari</label>
+            <label class=label-maki><input type=radio name=voice value=maki>Maki</label>
+            <br>
+            Action:
+            <label><input type=radio name=action value=play checked>Play</label>
+            <label><input type=radio name=action value=save>Save</label>
+            <br>
+            <a href="/dict">Edit dictionary ...</a>
+        </div>
+    </div>
+    <button class=button style="background:#09f">
+        Start
+        <span class=progress><span>.</span><span>.</span><span>.</span></span>
+    </button>
+</form>
+</body>
+</html>

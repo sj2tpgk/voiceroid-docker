@@ -1,0 +1,5 @@
+#!/bin/sh
+
+pkill -STOP Voiceroid.exe
+pkill -STOP VOICEROID.exe
+pkill -STOP winedevice.exe

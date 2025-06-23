@@ -1,0 +1,3 @@
+#!/bin/sh
+# ./save_maki INPUT OUTPUT
+V_NAME=tamiyasu V_EXE=VOICEROID.exe V_DISPLAY=:2 "$(dirname "$0")"/save "$@"

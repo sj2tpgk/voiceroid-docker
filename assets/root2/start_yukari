@@ -1,0 +1,2 @@
+#!/bin/sh
+V_NAME=yukari V_EXE=Voiceroid.exe V_DISPLAY=:1 exec "$(dirname "$0")"/start

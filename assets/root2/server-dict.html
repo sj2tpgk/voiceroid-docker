@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Edit dictionary - voiceroid</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<style>
+* { box-sizing: border-box }
+body { margin: 0 auto; padding: 10px; display: flex; align-items: center; flex-direction: column; line-height: 1.5; }
+h2 { margin: 0; text-align: center; border-width: 0 }
+h3 { margin: 0 }
+form { width: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 10px; }
+form > * { width: 100% }
+form > *, form .button { padding: 7px 12px }
+form .button { text-align: center; text-decoration: none; font: bold large sans-serif; color: white }
+form .button:hover { filter: brightness(.8) contrast(1.8) }
+form textarea, form .button, form .b { border: solid #8888 1px; border-radius: 5px }
+</style>
+</head>
+<body style="width:min(800px,90vw)">
+<form action="/dictset">
+    <h2>Edit dictionary</h2>
+    <textarea name=dictvalue rows=20>${dictvalue}</textarea>
+    <div style="display:flex;gap:10px;padding:0">
+        <a href=/ class=button style="flex:1;background:#999">Cancel</a>
+        <button class=button style="flex:1;background:#09f">OK</button>
+    </div>
+</form>
+</body>
+</html>

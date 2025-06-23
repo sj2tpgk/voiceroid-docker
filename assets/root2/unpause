@@ -1,0 +1,6 @@
+#!/bin/sh
+
+[ "$V_EXE" ] || { echo "\$V_EXE not set"; exit 1; }
+
+pkill -CONT winedevice.exe
+pkill -CONT "$V_EXE"

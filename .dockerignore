@@ -1,0 +1,7 @@
+__pycache__/
+_http_cache/
+_old/
+winebox64/
+*.mp3
+*.txt
+*.wav

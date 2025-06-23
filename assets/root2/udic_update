@@ -1,0 +1,5 @@
+#!/bin/sh
+d1=/root/Voiceroid/AHS/VOICEROID+/yukari/lang/udic/
+d2=/root/Voiceroid/AHS/VOICEROID+/tamiyasu/lang/udic/
+./utf8_to_sjis.sh /udic/user.dic.utf8 "$d1"/user.dic
+cp -f "$d1"/user.dic "$d2"/user.dic
