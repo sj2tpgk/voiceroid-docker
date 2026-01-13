@@ -75,9 +75,9 @@ sudo "udic_dir=$(pwd)/udic2" make run
 Check `udic/user.dic.utf8` for dictionary format (you can also copy from existing installations).
 
 
-## Build speed up
+## Tip: faster build
 
-When building the docker image repeatedly, use a caching proxy to save network usage:
+When building docker images repeatedly, use a caching proxy to save network usage:
 ```
 $ python apt-cache-proxy.py 4444 & pid=$!
 $ sudo http_proxy=http://172.17.0.1:4444 make build_x64

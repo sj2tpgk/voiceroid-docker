@@ -20,9 +20,9 @@ ARG branch=stable version=7.0.2 id=debian dist=bookworm tag=-1
 #ARG branch=staging version=10.3 id=debian dist=bookworm tag=-1
 RUN apt-get install -y wget && \
     wget -q \
-        "http://dl.winehq.org/wine-builds/${id}/dists/${dist}/main/binary-amd64/wine-${branch}-amd64_${version}~${dist}${tag}_amd64.deb" \
-        "http://dl.winehq.org/wine-builds/${id}/dists/${dist}/main/binary-amd64/wine-${branch}_${version}~${dist}${tag}_amd64.deb" \
-        "http://dl.winehq.org/wine-builds/${id}/dists/${dist}/main/binary-i386/wine-${branch}-i386_${version}~${dist}${tag}_i386.deb" && \
+        "https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/wine-${branch}-amd64_${version}~${dist}${tag}_amd64.deb" \
+        "https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/wine-${branch}_${version}~${dist}${tag}_amd64.deb" \
+        "https://dl.winehq.org/wine-builds/debian/pool/main/w/wine/wine-${branch}-i386_${version}~${dist}${tag}_i386.deb" && \
     for i in wine*.deb; do dpkg-deb -x "$i" wine-installer; done && \
     mv wine-installer/opt/wine* /wine && \
     rm -rf wine-installer
@@ -36,8 +36,8 @@ RUN apt-get install -y \
         $(dpkg-deb -f "wine-${branch}-i386"*.deb  Depends Recommends | sed 's/^[^ ]*: //; s/\( [(|][^,]*\)*\($\|,\)/:armhf/g; s/libtiff5/libtiff6/') \
         $(dpkg-deb -f "wine-${branch}-amd64"*.deb Depends Recommends | sed 's/^[^ ]*: //; s/\( [(|][^,]*\)*\($\|,\)/:arm64/g; s/libtiff5/libtiff6/') \
         libstb0 && \
-    wget 'http://ftp.us.debian.org/debian/pool/main/f/faudio/libfaudio0_21.02-1~bpo10+1_i386.deb' && \
-    dpkg-deb -xv libfaudio0_*~bpo10+1_i386.deb libfaudio && \
+    wget 'http://ftp.us.debian.org/debian/pool/main/f/faudio/libfaudio0_21.02-1_i386.deb' && \
+    dpkg-deb -xv libfaudio0_*i386.deb libfaudio && \
     cp -TRv libfaudio/usr/ /usr/ && \
     rm -rf *.deb libfaudio/
 
