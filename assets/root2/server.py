@@ -2,8 +2,33 @@
 
 import http, http.server, os, re, string, subprocess, urllib.parse
 
+sox_C = 96
+pauseend_chars = "。」』"
+pauselong_chars = "．…、"
+
 def shell(cmd):
     return subprocess.run(cmd, shell=True)
+
+def get_pause():
+    long = 350
+    end = 700
+    with open("/root/Voiceroid/AHS/VOICEROID+/yukari/settings.dat", "rb") as f:
+        for i in f:
+            sp = i.split()
+            if len(sp) <= 1: continue
+            elif sp[0] == b"LONG": long = int(sp[1])
+            elif sp[0] == b"END": end = int(sp[1])
+    if not (0 <= long <= 10000 and 0 <= end <= 10000):
+        raise Exception(f"Bad pause setting (max 10000): long={long}, end={end}")
+    sub = 90 # it seems to have too much pause so need to subtract this
+    # create empty audio (22050 Hz and 1 channel for yukari, 16000 Hz and 1 channel for maki. must match voiceroid output)
+    pauses = {}
+    for r, n, l in [[16000, "long_m", long], [16000, "end_m", end], [22050, "long_y", long], [22050, "end_y", end]]:
+        shell(f"sox -n -r {r} -c 1 -C {sox_C} pause{n}.mp3 trim 0.0 {round(max(0,l-sub)/1000, 2)}")
+        with open(f"pause{n}.mp3", "rb") as f: pauses[n] = f.read()
+    return pauses
+
+pauses = get_pause()
 
 def preproc(text:str):
     bsizes    = [80, 160, 1800] # block size for first few blocks, then the size for the all other blocks
@@ -18,7 +43,10 @@ def preproc(text:str):
             s = s[pos+1:]
         return out
 
-    nonreadable = r'[^\u0000-\u00ff\u3000-\u30ff\uff00-\uffefu\u4e00-\u9faf]+'
+    forcelong = r'[~〜～]' # prevent being read as から (there are other 波線 chars but seldom used)
+    text = re.sub(forcelong, "ー", text)
+
+    nonreadable = r'[^\u0000-\u00ff\u2026\u3000-\u30ff\uff00-\uffef\u4e00-\u9faf]+' # u2026=…
     text = re.sub(nonreadable, "", text)
     lines = [x.strip() for x in text.splitlines()]
 
@@ -26,7 +54,7 @@ def preproc(text:str):
     block = ""
     out = []
     for line in lines:
-        for part in split_inclusive(line, r"[\s」』．…。、]"):
+        for part in split_inclusive(line, r"[\s" + pauselong_chars + pauseend_chars + "]"):
             # process this part
             while part:
                 bsize_now = bsizes[bsize_idx]
@@ -56,10 +84,10 @@ def preproc(text:str):
     return out
 
 def summary(s:str):
-    if len(s) <= 15:
+    if len(s) <= 25:
         return s
     else:
-        return s[:15] + " ... " + s[-15:]
+        return s[:10] + " ... " + s[-10:]
 
 def getMP3(text, voice):
     lis = preproc(text)
@@ -74,7 +102,7 @@ def getMP3(text, voice):
         savescript = "./save_maki" if voice == "maki" else "./save_yukari"
         shell(f"{savescript} ./input.txt ./output.wav")
         shell("sleep .4")
-        shell(f"sox ./output.wav -C 96 ./output.mp3")
+        shell(f"sox ./output.wav -C {sox_C} ./output.mp3")
         with open(f"./output.mp3", "rb") as f:
             while True:
                 data = f.read(64 * 1024)
@@ -85,7 +113,12 @@ def getMP3(text, voice):
                     first = False
                 else:
                     yield data
-        shell("rm -f ./output.wav ./output.mp3")
+        #shell("rm -f ./output.wav ./output.mp3")
+        # add pause if trailing punctation
+        if subtext[-1] in ("\n\r" + pauseend_chars):
+            yield pauses["end_m" if voice == "maki" else "end_y"]
+        elif subtext[-1] in pauselong_chars:
+            yield pauses["long_m" if voice == "maki" else "long_y"]
 
 def validate_dictvalue(dictvalue):
     for line in dictvalue.splitlines():
